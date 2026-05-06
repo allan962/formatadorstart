@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StartRH — Formatador de CV</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amarelo: #faba1a;
+    --vinho:   #1c050a;
+    --coral:   #ff6633;
+    --navy:    #292969;
+    --rosa:    #ff70ba;
+    --verde:   #2f584e;
+    --bg:      #f5f0e8;
+    --white:   #ffffff;
+    --gray-light: #f2f1f0;
+    --gray-mid:   #bbbbbb;
+    --text:    #1c050a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     TELA DE LOGIN
+  ═══════════════════════════════════════════════════ */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vinho);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #loginScreen::before {
+    content: '';
+    position: absolute;
+    right: -120px; top: -120px;
+    width: 500px; height: 500px;
+    background: var(--amarelo);
+    opacity: 0.06;
+    border-radius: 50%;
+  }
+
+  #loginScreen::after {
+    content: '';
+    position: absolute;
+    left: -80px; bottom: -80px;
+    width: 320px; height: 320px;
+    background: var(--coral);
+    opacity: 0.08;
+    border-radius: 50%;
+  }
+
+  .login-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .login-logo-mark {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--vinho);
+    letter-spacing: -1px;
+  }
+
+  .login-logo-mark span { color: var(--amarelo); }
+
+  .login-dot {
+    width: 8px; height: 8px;
+    background: var(--amarelo);
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+  }
+
+  .login-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--vinho);
+    margin-bottom: 6px;
+  }
+
+  .login-sub {
+    font-size: 13px;
+    color: var(--gray-mid);
+    margin-bottom: 32px;
+  }
+
+  .login-field {
+    margin-bottom: 16px;
+  }
+
+  .login-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 6px;
+  }
+
+  .login-field input {
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    border-radius: 12px;
+    outline: none;
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  .login-field input:focus { border-color: var(--amarelo); }
+
+  .login-btn {
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--amarelo);
+    color: var(--vinho);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .login-btn:hover { background: #f0aa00; }
+  .login-btn:active { transform: scale(0.98); }
+  .login-btn:disabled { background: var(--gray-light); color: var(--gray-mid); cursor: not-allowed; }
+
+  .login-erro {
+    margin-top: 14px;
+    background: #ffeeed;
+    color: #8b1a1a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    display: none;
+  }
+
+  .login-rodape {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray-light);
+    font-size: 11px;
+    color: var(--gray-mid);
+    text-align: center;
+  }
+
+
+  /* ═══════════════════════════════════════════════════
+     APP PRINCIPAL
+  ═══════════════════════════════════════════════════ */
+  #appScreen { display: none; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--vinho);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-wordmark {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-wordmark span { color: var(--amarelo); }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .topbar-user {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+  }
+
+  .topbar-user strong {
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+  }
+
+  .btn-logout {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.65);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-logout:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+  /* ── TABS ── */
+  .tabs {
+    background: var(--white);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    padding: 0 2rem;
+    gap: 4px;
+  }
+
+  .tab {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 14px 20px;
+    border: none;
+    background: none;
+    color: var(--gray-mid);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .tab:hover { color: var(--vinho); }
+  .tab.active { color: var(--vinho); border-bottom-color: var(--amarelo); font-weight: 600; }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    min-height: calc(100vh - 64px - 48px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    background: var(--white);
+    border-right: 1px solid rgba(0,0,0,0.08);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 8px;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--amarelo);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .upload-zone:hover { background: rgba(250,186,26,0.05); }
+  .upload-zone.drag-over { background: rgba(250,186,26,0.1); border-style: solid; }
+
+  .upload-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+
+  .upload-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+
+  .upload-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .upload-hint {
+    font-size: 12px;
+    color: var(--gray-mid);
+  }
+
+  .upload-file-name {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--verde);
+    display: none;
+  }
+
+  /* Field group */
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-group label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+  }
+
+  .field-group input {
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    border-radius: 10px;
+    outline: none;
+    color: var(--text);
+    background: var(--white);
+    transition: border-color 0.2s;
+  }
+
+  .field-group input:focus { border-color: var(--amarelo); }
+
+  /* Format button */
+  .btn-format {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--amarelo);
+    color: var(--vinho);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-format:hover { background: #f0aa00; }
+  .btn-format:active { transform: scale(0.98); }
+  .btn-format:disabled { background: var(--gray-light); color: var(--gray-mid); cursor: not-allowed; }
+
+  /* Status */
+  .status-box {
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 13px;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .status-box.loading { background: #fff8e1; color: #7a5900; display: block; }
+  .status-box.error   { background: #ffeeed; color: #8b1a1a; display: block; }
+  .status-box.success { background: #e8f5e9; color: #1b5e20; display: block; }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.15);
+    border-top-color: #c98a00;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Download btn */
+  .btn-download {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--verde);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    width: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+
+  .btn-download:hover { background: #1e3f36; }
+  .btn-download.visible { display: flex; }
+
+  /* Tips */
+  .tips {
+    background: var(--gray-light);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .tips strong { color: var(--vinho); }
+
+  /* ── RIGHT PANEL — PREVIEW ── */
+  .panel-right {
+    background: var(--bg);
+    padding: 2rem;
+    overflow-y: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .preview-placeholder {
+    margin-top: 6rem;
+    text-align: center;
+    color: var(--gray-mid);
+  }
+
+  .preview-placeholder .big-icon {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+  }
+
+  .preview-placeholder p {
+    font-size: 15px;
+    font-weight: 500;
+    color: #bbb;
+  }
+
+  /* ── CV DOCUMENT ── */
+  .cv-doc {
+    width: 100%;
+    max-width: 700px;
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+    display: none;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .cv-doc.visible { display: block; }
+
+  /* CV Header */
+  .cv-header {
+    background: var(--vinho);
+    padding: 2rem 2.5rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cv-header::before {
+    content: '';
+    position: absolute; right: -40px; top: -40px;
+    width: 160px; height: 160px;
+    background: var(--amarelo); opacity: 0.12; border-radius: 50%;
+  }
+
+  .cv-header::after {
+    content: '';
+    position: absolute; right: 60px; bottom: -30px;
+    width: 90px; height: 90px;
+    background: var(--coral); opacity: 0.1; border-radius: 50%;
+  }
+
+  .cv-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .cv-logo-row .wordmark { font-size: 15px; font-weight: 700; color: #fff; }
+  .cv-logo-row .wordmark span { color: var(--amarelo); }
+
+  .cv-vaga-tag {
+    display: inline-block;
+    background: var(--amarelo); color: var(--vinho);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  .cv-nome { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 6px; }
+  .cv-cargo-atual { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 300; }
+
+  .cv-contatos {
+    display: flex; flex-wrap: wrap; gap: 6px 18px;
+    margin-top: 1rem;
+  }
+
+  .cv-contato-item { font-size: 12px; color: rgba(255,255,255,0.7); }
+
+  /* CV Body */
+  .cv-body {
+    padding: 2rem 2.5rem;
+    display: flex; flex-direction: column; gap: 1.8rem;
+  }
+
+  .cv-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--amarelo);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .cv-section-title::after {
+    content: ''; flex: 1; height: 2px;
+    background: var(--amarelo); opacity: 0.2; border-radius: 2px;
+  }
+
+  .cv-resumo { font-size: 13px; line-height: 1.75; color: #444; }
+
+  .cv-exp-item {
+    margin-bottom: 1.2rem; padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .cv-exp-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .cv-exp-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 2px; }
+  .cv-exp-cargo { font-size: 14px; font-weight: 600; color: var(--vinho); }
+  .cv-exp-periodo { font-size: 10px; color: #aaa; background: var(--gray-light); padding: 2px 10px; border-radius: 20px; white-space: nowrap; }
+  .cv-exp-empresa { font-size: 12px; color: var(--coral); font-weight: 500; margin-bottom: 5px; }
+  .cv-exp-desc { font-size: 12px; color: #555; line-height: 1.6; }
+
+  .cv-form-item { margin-bottom: 10px; }
+  .cv-form-curso { font-size: 13px; font-weight: 600; color: var(--vinho); }
+  .cv-form-inst { font-size: 11px; color: #777; }
+  .cv-form-periodo { font-size: 11px; color: #aaa; }
+
+  .cv-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+  .cv-pill { font-size: 11px; font-weight: 500; padding: 4px 13px; border-radius: 20px; }
+  .cv-pill-idioma { background: #fff0f5; color: var(--vinho); border: 1px solid rgba(255,112,186,0.25); }
+  .cv-pill-hab    { background: #fff8e1; color: #7a5900; border: 1px solid rgba(250,186,26,0.3); }
+
+  .cv-curso-item { font-size: 12px; color: #444; padding: 3px 0 3px 16px; position: relative; }
+  .cv-curso-item::before { content: ''; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--amarelo); }
+
+  /* CV Footer */
+  .cv-footer {
+    background: var(--gray-light);
+    padding: 12px 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .cv-footer-logo { font-size: 11px; font-weight: 700; color: var(--vinho); opacity: 0.5; }
+  .cv-footer-logo span { color: var(--amarelo); }
+  .cv-footer-info { font-size: 10px; color: var(--gray-mid); }
+
+  /* ── PCD BADGE ── */
+  .cv-pcd-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(250,186,26,0.15);
+    border: 1.5px solid var(--amarelo);
+    color: var(--amarelo);
+    font-size: 11px; font-weight: 600;
+    padding: 5px 12px; border-radius: 20px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     TELA DE LOGIN
+════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark">start<span>·rh</span> ›</div>
+    </div>
+    <div class="login-title">Acesso restrito</div>
+    <div class="login-sub">Entre com suas credenciais de recrutador</div>
+
+    <div class="login-field">
+      <label>Usuário</label>
+      <input type="text" id="loginUsuario" placeholder="seu.usuario" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="login-btn" id="btnLogin" onclick="fazerLogin()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      Entrar
+    </button>
+
+    <div class="login-erro" id="loginErro"></div>
+
+    <div class="login-rodape">
+      Acesso exclusivo para recrutadores autorizados StartRH
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     APP PRINCIPAL
+════════════════════════════════════════════════ -->
+<div id="appScreen">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-wordmark">start<span>·rh</span> ›</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-user">Olá, <strong id="nomeUsuario">recrutador</strong></div>
+      <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="trocarTab(0)">📄 StartRH Padrão</button>
+    <button class="tab" onclick="trocarTab(1)">♿ StartRH PCD</button>
+    <button class="tab" onclick="trocarTab(2)">👔 StartExec</button>
+  </div>
+
+  <!-- ── TAB 0: StartRH PADRÃO ── -->
+  <div class="main tab-content" id="tab0">
+    <div class="panel-left">
+
+      <div>
+        <div class="section-label">1. Currículo do candidato</div>
+        <div class="upload-zone" id="uploadZone0" ondragover="dragOver(event,'uploadZone0')" ondragleave="dragLeave('uploadZone0')" ondrop="dropFile(event,'fileInput0','uploadZone0','fileName0')">
+          <input type="file" id="fileInput0" accept=".pdf" onchange="fileSelected('fileInput0','fileName0')">
+          <span class="upload-icon">📄</span>
+          <div class="upload-label">Arraste o PDF ou clique para selecionar</div>
+          <div class="upload-hint">Somente PDF • Até 10 MB</div>
+          <div class="upload-file-name" id="fileName0"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>2. Vaga / Cargo pretendido</label>
+        <input type="text" id="vaga0" placeholder="Ex: Analista de RH Sênior">
+      </div>
+
+      <button class="btn-format" id="btnFormat0" onclick="formatar(0)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Formatar CV
+      </button>
+
+      <div class="status-box" id="status0"></div>
+
+      <button class="btn-download" id="btnDownload0" onclick="baixarCV(0)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 10l5 5 5-5M12 15V3"/></svg>
+        Baixar CV Formatado
+      </button>
+
+      <div class="tips">
+        <strong>Dicas para melhor resultado:</strong><br>
+        • Use PDFs com texto selecionável (não imagens)<br>
+        • CVs com seções bem definidas têm melhor extração<br>
+        • O nome da vaga aparece no cabeçalho do CV
+      </div>
+
+    </div><!-- /panel-left -->
+
+    <div class="panel-right" id="preview0">
+      <div class="preview-placeholder">
+        <span class="big-icon">📋</span>
+        <p>O CV formatado aparecerá aqui</p>
+      </div>
+      <!-- CV gerado será inserido aqui -->
+      <div class="cv-doc" id="cvDoc0">
+        <div class="cv-header">
+          <div class="cv-logo-row"><div class="wordmark">start<span>·rh</span> ›</div></div>
+          <div class="cv-vaga-tag" id="cvVaga0">Vaga</div>
+          <div class="cv-nome" id="cvNome0">Nome do Candidato</div>
+          <div class="cv-cargo-atual" id="cvCargo0"></div>
+          <div class="cv-contatos" id="cvContatos0"></div>
+        </div>
+        <div class="cv-body" id="cvBody0"></div>
+        <div class="cv-footer">
+          <div class="cv-footer-logo">start<span>·rh</span></div>
+          <div class="cv-footer-info" id="cvData0"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /tab0 -->
+
+  <!-- ── TAB 1: PCD ── -->
+  <div class="main tab-content" id="tab1" style="display:none">
+    <div class="panel-left">
+
+      <div>
+        <div class="section-label">1. Currículo PCD</div>
+        <div class="upload-zone" id="uploadZone1" ondragover="dragOver(event,'uploadZone1')" ondragleave="dragLeave('uploadZone1')" ondrop="dropFile(event,'fileInput1','uploadZone1','fileName1')">
+          <input type="file" id="fileInput1" accept=".pdf" onchange="fileSelected('fileInput1','fileName1')">
+          <span class="upload-icon">♿</span>
+          <div class="upload-label">Arraste o PDF ou clique para selecionar</div>
+          <div class="upload-hint">Somente PDF • Até 10 MB</div>
+          <div class="upload-file-name" id="fileName1"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>2. Vaga / Cargo pretendido</label>
+        <input type="text" id="vaga1" placeholder="Ex: Operador de Produção PCD">
+      </div>
+
+      <button class="btn-format" id="btnFormat1" onclick="formatar(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Formatar CV PCD
+      </button>
+
+      <div class="status-box" id="status1"></div>
+
+      <button class="btn-download" id="btnDownload1" onclick="baixarCV(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 10l5 5 5-5M12 15V3"/></svg>
+        Baixar CV PCD Formatado
+      </button>
+
+      <div class="tips">
+        <strong>Perfil PCD:</strong><br>
+        • Inclui seção específica com dados do laudo<br>
+        • Badge "PCD" no cabeçalho do CV<br>
+        • CID, diagnóstico e médico responsável são extraídos quando disponíveis
+      </div>
+
+    </div>
+
+    <div class="panel-right" id="preview1">
+      <div class="preview-placeholder">
+        <span class="big-icon">♿</span>
+        <p>O CV PCD formatado aparecerá aqui</p>
+      </div>
+      <div class="cv-doc" id="cvDoc1">
+        <div class="cv-header">
+          <div class="cv-logo-row"><div class="wordmark">start<span>·rh</span> ›</div></div>
+          <div class="cv-vaga-tag" id="cvVaga1">Vaga</div>
+          <div class="cv-nome" id="cvNome1">Nome do Candidato</div>
+          <div class="cv-cargo-atual" id="cvCargo1"></div>
+          <div class="cv-contatos" id="cvContatos1"></div>
+          <div id="cvPcdBadge1"></div>
+        </div>
+        <div class="cv-body" id="cvBody1"></div>
+        <div class="cv-footer">
+          <div class="cv-footer-logo">start<span>·rh</span></div>
+          <div class="cv-footer-info" id="cvData1"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /tab1 -->
+
+  <!-- ── TAB 2: EXEC ── -->
+  <div class="main tab-content" id="tab2" style="display:none">
+    <div class="panel-left">
+
+      <div>
+        <div class="section-label">1. Currículo Executivo</div>
+        <div class="upload-zone" id="uploadZone2" ondragover="dragOver(event,'uploadZone2')" ondragleave="dragLeave('uploadZone2')" ondrop="dropFile(event,'fileInput2','uploadZone2','fileName2')">
+          <input type="file" id="fileInput2" accept=".pdf" onchange="fileSelected('fileInput2','fileName2')">
+          <span class="upload-icon">👔</span>
+          <div class="upload-label">Arraste o PDF ou clique para selecionar</div>
+          <div class="upload-hint">Somente PDF • Até 10 MB</div>
+          <div class="upload-file-name" id="fileName2"></div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>2. Vaga / Cargo pretendido</label>
+        <input type="text" id="vaga2" placeholder="Ex: Diretor Comercial">
+      </div>
+
+      <button class="btn-format" id="btnFormat2" onclick="formatar(2)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Formatar CV Executivo
+      </button>
+
+      <div class="status-box" id="status2"></div>
+
+      <button class="btn-download" id="btnDownload2" onclick="baixarCV(2)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M7 10l5 5 5-5M12 15V3"/></svg>
+        Baixar CV Executivo
+      </button>
+
+      <div class="tips">
+        <strong>Perfil Executivo:</strong><br>
+        • Foco em Resumo Executivo de alto impacto<br>
+        • Ênfase em realizações e resultados quantitativos<br>
+        • Layout com Navy + Gold para cargos C-level / diretoria
+      </div>
+
+    </div>
+
+    <div class="panel-right" id="preview2">
+      <div class="preview-placeholder">
+        <span class="big-icon">👔</span>
+        <p>O CV Executivo formatado aparecerá aqui</p>
+      </div>
+      <div class="cv-doc" id="cvDoc2">
+        <div class="cv-header" style="background:#292969">
+          <div class="cv-logo-row"><div class="wordmark">start<span>·rh</span> ›</div></div>
+          <div class="cv-vaga-tag" id="cvVaga2">Vaga</div>
+          <div class="cv-nome" id="cvNome2">Nome do Candidato</div>
+          <div class="cv-cargo-atual" id="cvCargo2"></div>
+          <div class="cv-contatos" id="cvContatos2"></div>
+        </div>
+        <div class="cv-body" id="cvBody2"></div>
+        <div class="cv-footer">
+          <div class="cv-footer-logo">start<span>·rh</span></div>
+          <div class="cv-footer-info" id="cvData2"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /tab2 -->
+
+</div><!-- /appScreen -->
+
+
+<script>
+// ════════════════════════════════════════════════
+//  ESTADO
+// ════════════════════════════════════════════════
+let authToken  = localStorage.getItem('startrh_token') || null;
+let authUsuario = localStorage.getItem('startrh_usuario') || null;
+let cvDados    = [null, null, null];  // dados de cada tab
+let cvHtml     = [null, null, null];  // html para download
+
+// ════════════════════════════════════════════════
+//  INICIALIZAÇÃO
+// ════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  if (authToken) {
+    verificarSessao();
+  }
+
+  // Enter no login
+  document.getElementById('loginSenha').addEventListener('keydown', e => {
+    if (e.key === 'Enter') fazerLogin();
+  });
+  document.getElementById('loginUsuario').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginSenha').focus();
+  });
+});
+
+// ════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════
+async function verificarSessao() {
+  try {
+    const r = await fetch('/api/me', { headers: { 'x-auth-token': authToken } });
+    if (r.ok) {
+      const d = await r.json();
+      entrarNoApp(d.usuario);
+    } else {
+      authToken = null;
+      localStorage.removeItem('startrh_token');
+      localStorage.removeItem('startrh_usuario');
+    }
+  } catch {
+    // servidor offline — mostra login
+  }
+}
+
+async function fazerLogin() {
+  const btn   = document.getElementById('btnLogin');
+  const erro  = document.getElementById('loginErro');
+  const user  = document.getElementById('loginUsuario').value.trim();
+  const senha = document.getElementById('loginSenha').value;
+
+  erro.style.display = 'none';
+
+  if (!user || !senha) {
+    erro.textContent = 'Preencha usuário e senha.';
+    erro.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando…';
+
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: user, senha })
+    });
+
+    const d = await r.json();
+
+    if (r.ok) {
+      authToken   = d.token;
+      authUsuario = d.usuario;
+      localStorage.setItem('startrh_token', authToken);
+      localStorage.setItem('startrh_usuario', authUsuario);
+      entrarNoApp(d.usuario);
+    } else {
+      erro.textContent = d.erro || 'Credenciais inválidas.';
+      erro.style.display = 'block';
+    }
+  } catch {
+    erro.textContent = 'Não foi possível conectar ao servidor.';
+    erro.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg> Entrar`;
+}
+
+function entrarNoApp(usuario) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  document.getElementById('nomeUsuario').textContent = usuario;
+}
+
+async function fazerLogout() {
+  try {
+    await fetch('/api/logout', {
+      method: 'POST',
+      headers: { 'x-auth-token': authToken }
+    });
+  } catch {}
+
+  authToken = null;
+  localStorage.removeItem('startrh_token');
+  localStorage.removeItem('startrh_usuario');
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUsuario').value = '';
+  document.getElementById('loginSenha').value = '';
+  document.getElementById('loginErro').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════
+function trocarTab(idx) {
+  document.querySelectorAll('.tab-content').forEach((el, i) => {
+    el.style.display = i === idx ? 'grid' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+}
+
+// ════════════════════════════════════════════════
+//  UPLOAD
+// ════════════════════════════════════════════════
+function fileSelected(inputId, labelId) {
+  const f = document.getElementById(inputId).files[0];
+  const lbl = document.getElementById(labelId);
+  if (f) { lbl.textContent = '✓ ' + f.name; lbl.style.display = 'block'; }
+}
+
+function dragOver(e, zoneId) {
+  e.preventDefault();
+  document.getElementById(zoneId).classList.add('drag-over');
+}
+
+function dragLeave(zoneId) {
+  document.getElementById(zoneId).classList.remove('drag-over');
+}
+
+function dropFile(e, inputId, zoneId, labelId) {
+  e.preventDefault();
+  dragLeave(zoneId);
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  document.getElementById(inputId).files = dt.files;
+  fileSelected(inputId, labelId);
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('Erro ao ler arquivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+// ════════════════════════════════════════════════
+//  STATUS
+// ════════════════════════════════════════════════
+function setStatus(tab, tipo, msg) {
+  const el = document.getElementById('status' + tab);
+  el.className = 'status-box ' + tipo;
+  el.innerHTML = tipo === 'loading'
+    ? `<span class="spinner"></span>${msg}`
+    : msg;
+}
+
+function hideStatus(tab) {
+  document.getElementById('status' + tab).className = 'status-box';
+}
+
+// ════════════════════════════════════════════════
+//  PROMPTS POR TIPO
+// ════════════════════════════════════════════════
+const PROMPTS = [
+  // 0 — Padrão
+  `Você é um assistente especializado em formatação de currículos para o padrão StartRH.
+Extraia as informações do currículo em PDF e retorne APENAS um JSON válido (sem markdown, sem explicações) com a estrutura:
+{
+  "nome": "string",
+  "cargoAtual": "string",
+  "email": "string",
+  "telefone": "string",
+  "cidade": "string",
+  "linkedin": "string",
+  "resumo": "string (resumo profissional em 3-5 linhas)",
+  "experiencias": [{ "cargo": "string", "empresa": "string", "periodo": "string", "descricao": "string" }],
+  "formacao": [{ "curso": "string", "instituicao": "string", "periodo": "string" }],
+  "idiomas": ["string"],
+  "habilidades": ["string"],
+  "cursos": ["string"]
+}
+Retorne SOMENTE o JSON, sem nenhum texto adicional.`,
+
+  // 1 — PCD
+  `Você é um assistente especializado em formatação de currículos PCD para o padrão StartRH.
+Extraia as informações do currículo (incluindo dados de laudo médico, se presentes) e retorne APENAS um JSON válido (sem markdown) com:
+{
+  "nome": "string",
+  "cargoAtual": "string",
+  "email": "string",
+  "telefone": "string",
+  "cidade": "string",
+  "linkedin": "string",
+  "resumo": "string",
+  "pcd": {
+    "tipoPcd": "string (tipo de deficiência)",
+    "cids": ["string"],
+    "diagnostico": "string",
+    "medicoNome": "string",
+    "medicoEspecialidade": "string",
+    "data": "string",
+    "observacoes": "string"
+  },
+  "experiencias": [{ "cargo": "string", "empresa": "string", "periodo": "string", "descricao": "string" }],
+  "formacao": [{ "curso": "string", "instituicao": "string", "periodo": "string" }],
+  "idiomas": ["string"],
+  "habilidades": ["string"],
+  "cursos": ["string"]
+}
+Retorne SOMENTE o JSON.`,
+
+  // 2 — Exec
+  `Você é um assistente especializado em formatação de currículos executivos para o padrão StartExec.
+Extraia as informações e retorne APENAS um JSON válido (sem markdown) com:
+{
+  "nome": "string",
+  "cargoAtual": "string",
+  "email": "string",
+  "telefone": "string",
+  "cidade": "string",
+  "linkedin": "string",
+  "resumo": "string (resumo executivo de impacto, 4-6 linhas, com foco em resultados e liderança)",
+  "experiencias": [{ "cargo": "string", "empresa": "string", "periodo": "string", "descricao": "string (com resultados quantitativos quando disponíveis)" }],
+  "formacao": [{ "curso": "string", "instituicao": "string", "periodo": "string" }],
+  "idiomas": ["string"],
+  "habilidades": ["string"],
+  "cursos": ["string"]
+}
+Retorne SOMENTE o JSON.`
+];
+
+// ════════════════════════════════════════════════
+//  FORMATAR
+// ════════════════════════════════════════════════
+async function formatar(tab) {
+  const fileInput = document.getElementById('fileInput' + tab);
+  const vagaInput = document.getElementById('vaga' + tab);
+  const btnFormat = document.getElementById('btnFormat' + tab);
+  const btnDl     = document.getElementById('btnDownload' + tab);
+  const cvDoc     = document.getElementById('cvDoc' + tab);
+  const preview   = document.getElementById('preview' + tab);
+
+  const file = fileInput.files[0];
+  const vaga = vagaInput.value.trim();
+
+  if (!file) { setStatus(tab, 'error', '✗ Selecione um PDF do currículo.'); return; }
+  if (!vaga) { setStatus(tab, 'error', '✗ Informe a vaga / cargo.'); return; }
+
+  btnFormat.disabled = true;
+  btnDl.style.display = 'none';
+  cvDoc.classList.remove('visible');
+  preview.querySelector('.preview-placeholder') && (preview.querySelector('.preview-placeholder').style.display = 'block');
+
+  setStatus(tab, 'loading', 'Lendo o currículo e extraindo dados…');
+
+  try {
+    const base64 = await toBase64(file);
+
+    setStatus(tab, 'loading', 'Formatando com IA…');
+
+    const resp = await fetch('/api/formatar', {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'x-auth-token':  authToken
+      },
+      body: JSON.stringify({
+        system: PROMPTS[tab],
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+            { type: 'text', text: `Extraia e formate este currículo. A vaga pretendida é: "${vaga}".` }
+          ]
+        }],
+        max_tokens: 4096
+      })
+    });
+
+    if (resp.status === 401) {
+      setStatus(tab, 'error', '✗ Sessão expirada. Faça login novamente.');
+      btnFormat.disabled = false;
+      return fazerLogout();
+    }
+
+    const dados = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(dados.erro || 'Erro ao processar.');
+    }
+
+    const texto = dados.content?.[0]?.text || '';
+    let cv;
+    try {
+      const clean = texto.replace(/```json|```/g, '').trim();
+      cv = JSON.parse(clean);
+    } catch {
+      throw new Error('A IA retornou um formato inesperado. Tente novamente.');
+    }
+
+    cvDados[tab] = cv;
+    renderizarCV(tab, cv, vaga);
+
+    setStatus(tab, 'success', '✓ CV formatado com sucesso!');
+    btnDl.style.display = 'flex';
+    preview.querySelector('.preview-placeholder').style.display = 'none';
+    cvDoc.classList.add('visible');
+
+  } catch (err) {
+    setStatus(tab, 'error', '✗ ' + (err.message || 'Erro inesperado.'));
+  }
+
+  btnFormat.disabled = false;
+}
+
+// ════════════════════════════════════════════════
+//  RENDERIZAR CV NA TELA
+// ════════════════════════════════════════════════
+function renderizarCV(tab, cv, vaga) {
+  document.getElementById('cvVaga'  + tab).textContent = vaga;
+  document.getElementById('cvNome'  + tab).textContent = cv.nome || 'Candidato';
+  document.getElementById('cvCargo' + tab).textContent = cv.cargoAtual || '';
+
+  // Contatos
+  const contEl = document.getElementById('cvContatos' + tab);
+  contEl.innerHTML = '';
+  [cv.email, cv.telefone, cv.cidade, cv.linkedin].filter(Boolean).forEach(v => {
+    const d = document.createElement('div');
+    d.className = 'cv-contato-item';
+    d.textContent = v;
+    contEl.appendChild(d);
+  });
+
+  // Badge PCD (tab 1)
+  if (tab === 1) {
+    const badge = document.getElementById('cvPcdBadge1');
+    if (cv.pcd?.tipoPcd) {
+      badge.innerHTML = `<div class="cv-pcd-badge">♿ PCD — ${cv.pcd.tipoPcd}</div>`;
+    }
+  }
+
+  // Body
+  const body = document.getElementById('cvBody' + tab);
+  body.innerHTML = '';
+
+  const titulo = tab === 2 ? 'Resumo Executivo' : 'Resumo Profissional';
+  if (cv.resumo) {
+    body.innerHTML += `<div><div class="cv-section-title">${titulo}</div><div class="cv-resumo">${cv.resumo}</div></div>`;
+  }
+
+  // PCD seção
+  if (tab === 1 && cv.pcd) {
+    const p = cv.pcd;
+    let pcdHtml = `<div class="cv-section-title">Dados da Deficiência</div><div style="background:#fff8e1;border-radius:12px;padding:14px;font-size:12px;line-height:1.8;color:#444;">`;
+    if (p.tipoPcd)    pcdHtml += `<div><strong>Tipo:</strong> ${p.tipoPcd}</div>`;
+    if (p.cids?.length) pcdHtml += `<div><strong>CID(s):</strong> ${p.cids.join(', ')}</div>`;
+    if (p.diagnostico) pcdHtml += `<div><strong>Diagnóstico:</strong> ${p.diagnostico}</div>`;
+    if (p.medicoNome)  pcdHtml += `<div><strong>Médico:</strong> ${p.medicoNome}${p.medicoEspecialidade ? ' — ' + p.medicoEspecialidade : ''}</div>`;
+    if (p.data)        pcdHtml += `<div><strong>Data do laudo:</strong> ${p.data}</div>`;
+    pcdHtml += '</div>';
+    if (p.tipoPcd || p.cids?.length) body.innerHTML += `<div>${pcdHtml}</div>`;
+  }
+
+  // Experiências
+  const exps = (cv.experiencias || []).filter(e => e.cargo);
+  if (exps.length) {
+    const html = exps.map(e => `
+      <div class="cv-exp-item">
+        <div class="cv-exp-top">
+          <div class="cv-exp-cargo">${e.cargo}</div>
+          ${e.periodo ? `<div class="cv-exp-periodo">${e.periodo}</div>` : ''}
+        </div>
+        <div class="cv-exp-empresa">${e.empresa || ''}</div>
+        ${e.descricao ? `<div class="cv-exp-desc">${e.descricao}</div>` : ''}
+      </div>`).join('');
+    body.innerHTML += `<div><div class="cv-section-title">Experiências Profissionais</div>${html}</div>`;
+  }
+
+  // Formação
+  const forms = (cv.formacao || []).filter(f => f.curso);
+  if (forms.length) {
+    const html = forms.map(f => `
+      <div class="cv-form-item">
+        <div class="cv-form-curso">${f.curso}</div>
+        <div class="cv-form-inst">${f.instituicao || ''}</div>
+        ${f.periodo ? `<div class="cv-form-periodo">${f.periodo}</div>` : ''}
+      </div>`).join('');
+    body.innerHTML += `<div><div class="cv-section-title">Formação Acadêmica</div>${html}</div>`;
+  }
+
+  // Idiomas
+  const idiomas = (cv.idiomas || []).filter(Boolean);
+  if (idiomas.length) {
+    const html = idiomas.map(i => `<span class="cv-pill cv-pill-idioma">${i}</span>`).join('');
+    body.innerHTML += `<div><div class="cv-section-title">Idiomas</div><div class="cv-pills">${html}</div></div>`;
+  }
+
+  // Habilidades
+  const habs = (cv.habilidades || []).filter(Boolean);
+  if (habs.length) {
+    const html = habs.map(h => `<span class="cv-pill cv-pill-hab">${h}</span>`).join('');
+    body.innerHTML += `<div><div class="cv-section-title">Habilidades</div><div class="cv-pills">${html}</div></div>`;
+  }
+
+  // Cursos
+  const cursos = (cv.cursos || []).filter(Boolean);
+  if (cursos.length) {
+    const html = cursos.map(c => `<div class="cv-curso-item">${c}</div>`).join('');
+    body.innerHTML += `<div><div class="cv-section-title">Cursos e Certificações</div>${html}</div>`;
+  }
+
+  // Data
+  document.getElementById('cvData' + tab).textContent =
+    'Gerado pela StartRH em ' + new Date().toLocaleDateString('pt-BR');
+
+  // Armazenar HTML para download
+  const docEl = document.getElementById('cvDoc' + tab);
+  cvHtml[tab] = gerarHtmlDownload(tab, cv, vaga);
+}
+
+// ════════════════════════════════════════════════
+//  GERAR HTML PARA DOWNLOAD (arquivo limpo)
+// ════════════════════════════════════════════════
+function gerarHtmlDownload(tab, cv, vaga) {
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const headerBg = tab === 2 ? '#292969' : '#1c050a';
+  const tituloResumo = tab === 2 ? 'Resumo Executivo' : 'Resumo Profissional';
+
+  const contatos = [cv.email, cv.telefone, cv.cidade, cv.linkedin]
+    .filter(Boolean).join('&nbsp;&nbsp;•&nbsp;&nbsp;');
+
+  let pcdBadge = '';
+  let pcdSecao = '';
+
+  if (tab === 1 && cv.pcd?.tipoPcd) {
+    pcdBadge = `<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(250,186,26,0.15);border:1.5px solid #faba1a;color:#faba1a;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;margin-top:12px;">♿ PCD — ${cv.pcd.tipoPcd}</div>`;
+    const p = cv.pcd;
+    pcdSecao = `<div><div class="section-title">Dados da Deficiência</div>
+      <div style="background:#fff8e1;border-radius:12px;padding:14px;font-size:12px;line-height:1.8;color:#444;">
+        ${p.tipoPcd ? `<div><strong>Tipo:</strong> ${p.tipoPcd}</div>` : ''}
+        ${p.cids?.length ? `<div><strong>CID(s):</strong> ${p.cids.join(', ')}</div>` : ''}
+        ${p.diagnostico ? `<div><strong>Diagnóstico:</strong> ${p.diagnostico}</div>` : ''}
+        ${p.medicoNome ? `<div><strong>Médico:</strong> ${p.medicoNome}${p.medicoEspecialidade ? ' — ' + p.medicoEspecialidade : ''}</div>` : ''}
+        ${p.data ? `<div><strong>Data do laudo:</strong> ${p.data}</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  const expHTML = (cv.experiencias || []).filter(e => e.cargo).map(e => `
+    <div class="exp-item">
+      <div class="exp-top">
+        <div class="exp-cargo">${e.cargo}</div>
+        ${e.periodo ? `<div class="exp-periodo">${e.periodo}</div>` : ''}
+      </div>
+      <div class="exp-empresa">${e.empresa || ''}</div>
+      ${e.descricao ? `<div class="exp-desc">${e.descricao}</div>` : ''}
+    </div>`).join('');
+
+  const formHTML = (cv.formacao || []).filter(f => f.curso).map(f => `
+    <div class="form-item">
+      <div class="form-curso">${f.curso}</div>
+      <div class="form-inst">${f.instituicao || ''}</div>
+      ${f.periodo ? `<div class="form-periodo">${f.periodo}</div>` : ''}
+    </div>`).join('');
+
+  const idiomasHTML = (cv.idiomas || []).filter(Boolean)
+    .map(i => `<span class="pill pill-idioma">${i}</span>`).join('');
+  const habHTML = (cv.habilidades || []).filter(Boolean)
+    .map(h => `<span class="pill pill-hab">${h}</span>`).join('');
+  const cursosHTML = (cv.cursos || []).filter(Boolean)
+    .map(c => `<div class="curso-item">${c}</div>`).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>CV StartRH — ${cv.nome || 'Candidato'}</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { font-family:'Poppins',sans-serif; background:#fff; color:#1c050a; }
+  @page { margin:0; size:A4; }
+  .cv { max-width:800px; margin:0 auto; background:#fff; }
+  .header { background:${headerBg}; padding:36px 48px 28px; position:relative; overflow:hidden; }
+  .header::before { content:''; position:absolute; right:-30px; top:-40px; width:160px; height:160px; background:#faba1a; opacity:0.1; border-radius:50%; }
+  .header::after  { content:''; position:absolute; right:80px; bottom:-30px; width:90px; height:90px; background:#ff6633; opacity:0.08; border-radius:50%; }
+  .logo-mark { font-size:15px; font-weight:700; color:#fff; margin-bottom:18px; display:block; }
+  .logo-mark span { color:#faba1a; }
+  .vaga-tag { display:inline-block; background:#faba1a; color:#1c050a; font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; padding:3px 12px; border-radius:20px; margin-bottom:10px; }
+  .nome { font-size:30px; font-weight:700; color:#fff; line-height:1.15; margin-bottom:5px; }
+  .cargo-atual { font-size:13px; color:rgba(255,255,255,0.55); font-weight:300; margin-bottom:14px; }
+  .contatos { font-size:11px; color:rgba(255,255,255,0.65); }
+  .body { padding:32px 48px 24px; display:flex; flex-direction:column; gap:24px; }
+  .section-title { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#faba1a; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .section-title::after { content:''; flex:1; height:1.5px; background:#faba1a; opacity:0.2; border-radius:2px; }
+  .resumo { font-size:12.5px; line-height:1.75; color:#444; }
+  .exp-item { margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .exp-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .exp-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:2px; }
+  .exp-cargo { font-size:13px; font-weight:600; color:#1c050a; }
+  .exp-periodo { font-size:10px; color:#aaa; background:#f2f1f0; padding:2px 10px; border-radius:20px; white-space:nowrap; }
+  .exp-empresa { font-size:11.5px; color:#ff6633; font-weight:500; margin-bottom:5px; }
+  .exp-desc { font-size:11.5px; color:#555; line-height:1.6; }
+  .form-item { margin-bottom:10px; }
+  .form-curso { font-size:13px; font-weight:600; color:#1c050a; }
+  .form-inst { font-size:11.5px; color:#777; }
+  .form-periodo { font-size:10.5px; color:#aaa; }
+  .pills { display:flex; flex-wrap:wrap; gap:7px; }
+  .pill { font-size:11px; font-weight:500; padding:4px 13px; border-radius:20px; }
+  .pill-idioma { background:#fff0f5; color:#1c050a; border:1px solid rgba(255,112,186,0.25); }
+  .pill-hab { background:#fff8e1; color:#7a5900; border:1px solid rgba(250,186,26,0.3); }
+  .curso-item { font-size:12px; color:#444; padding:3px 0 3px 16px; position:relative; }
+  .curso-item::before { content:''; position:absolute; left:0; top:9px; width:6px; height:6px; border-radius:50%; background:#faba1a; }
+  .footer { background:#f2f1f0; padding:10px 48px; display:flex; align-items:center; justify-content:space-between; }
+  .footer-logo { font-size:11px; font-weight:700; color:#1c050a; opacity:0.45; }
+  .footer-logo span { color:#faba1a; }
+  .footer-info { font-size:10px; color:#bbb; }
+  @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style>
+</head>
+<body>
+<div class="cv">
+  <div class="header">
+    <div class="logo-mark">start<span>·rh</span> ›</div>
+    <div class="vaga-tag">${vaga}</div>
+    <div class="nome">${cv.nome || 'Candidato'}</div>
+    <div class="cargo-atual">${cv.cargoAtual || ''}</div>
+    <div class="contatos">${contatos}</div>
+    ${pcdBadge}
+  </div>
+  <div class="body">
+    ${cv.resumo ? `<div><div class="section-title">${tituloResumo}</div><div class="resumo">${cv.resumo}</div></div>` : ''}
+    ${pcdSecao}
+    ${expHTML ? `<div><div class="section-title">Experiências Profissionais</div>${expHTML}</div>` : ''}
+    ${formHTML ? `<div><div class="section-title">Formação Acadêmica</div>${formHTML}</div>` : ''}
+    ${idiomasHTML ? `<div><div class="section-title">Idiomas</div><div class="pills">${idiomasHTML}</div></div>` : ''}
+    ${habHTML ? `<div><div class="section-title">Habilidades</div><div class="pills">${habHTML}</div></div>` : ''}
+    ${cursosHTML ? `<div><div class="section-title">Cursos e Certificações</div>${cursosHTML}</div>` : ''}
+  </div>
+  <div class="footer">
+    <div class="footer-logo">start<span>·rh</span></div>
+    <div class="footer-info">Gerado pela StartRH em ${hoje}</div>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+// ════════════════════════════════════════════════
+//  BAIXAR CV
+// ════════════════════════════════════════════════
+function baixarCV(tab) {
+  const html = cvHtml[tab];
+  if (!html) return;
+  const vaga = document.getElementById('vaga' + tab).value.trim().replace(/\s+/g, '_');
+  const nome = (cvDados[tab]?.nome || 'Candidato').replace(/\s+/g, '_');
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `CV_StartRH_${nome}_${vaga}.html`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+</script>
+</body>
+</html>

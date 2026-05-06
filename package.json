@@ -1,0 +1,17 @@
+{
+  "name": "startrh-formatador",
+  "version": "1.0.0",
+  "description": "StartRH – Formatador de CV (servidor)",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "npx nodemon server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
